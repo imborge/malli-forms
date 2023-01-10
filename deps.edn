@@ -1,0 +1,44 @@
+{:paths ["src"
+         "resources"]
+
+ :deps {org.clojure/clojure       {:mvn/version "1.11.1"}
+        metosin/malli             {:mvn/version "0.9.2"}}
+ :aliases
+ {:build   {:deps       {io.github.seancorfield/build-clj
+                         {:git/tag "v0.6.4" :git/sha "c21cfde"}}
+            :ns-default build}
+  :env/dev {:extra-deps {nrepl/nrepl                   {:mvn/version "0.9.0"}
+                         refactor-nrepl/refactor-nrepl {:mvn/version "3.6.0"}
+                         com.lambdaisland/classpath    {:mvn/version "0.0.27"}
+                         criterium/criterium           {:mvn/version "0.4.6"}
+                         expound/expound               {:mvn/version "0.9.0"}
+                         integrant/repl                {:mvn/version "0.3.2"}
+                         pjstadig/humane-test-output   {:mvn/version "0.11.0"}
+                         ring/ring-devel               {:mvn/version "1.9.5"}
+                         ring/ring-mock                {:mvn/version "0.4.0"}
+                         org.clojure/tools.namespace   {:mvn/version "1.2.0"}}
+
+            :extra-paths ["env/dev/clj"
+                          "env/dev/resources"
+                          "test/clj"]
+
+            :main-opts ["-m" "nrepl.cmdline" "--middleware"
+                        "[refactor-nrepl.middleware/wrap-refactor]" "-i"]}
+  :env/cider {:extra-deps {cider/cider-nrepl {:mvn/version "0.28.3"}}
+              :main-opts  ["-m" "nrepl.cmdline" "--middleware"
+                           "[refactor-nrepl.middleware/wrap-refactor,cider.nrepl/cider-middleware]" "-i"]}
+
+  :env/test {:extra-deps  {criterium/criterium                  {:mvn/version "0.4.6"}
+                           expound/expound                      {:mvn/version "0.9.0"}
+                           integrant/repl                       {:mvn/version "0.3.2"}
+                           io.github.cognitect-labs/test-runner {:git/tag "v0.5.0"
+                                                                 :git/sha "b3fd0d2"}
+                           pjstadig/humane-test-output          {:mvn/version "0.11.0"}
+                           ring/ring-devel                      {:mvn/version "1.9.5"}
+                           ring/ring-mock                       {:mvn/version "0.4.0"}
+                           org.clojure/tools.namespace          {:mvn/version "1.2.0"}
+                           com.lambdaisland/classpath           {:mvn/version "0.0.27"}}
+             :exect-fn    cognitect.test-runner.api/test
+             :extra-paths ["env/dev" "env/dev/resources" "env/test/resources" "test"]
+             :main-opts   ["-e" "(require 'pjstadig.humane-test-output) (pjstadig.humane-test-output/activate!)"
+                           "-m" "cognitect.test-runner"]}}}
