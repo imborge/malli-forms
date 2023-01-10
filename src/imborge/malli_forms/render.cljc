@@ -1,5 +1,8 @@
 (ns imborge.malli-forms.render
-  (:require [malli.core :as m]))
+  (:require [malli.core :as m]
+            [malli.error :as me]
+            [malli.transform :as mt]
+            [malli.util :as mu]))
 
 (def type->input-type
   {:string   "text"
@@ -84,11 +87,49 @@
   [(render-tag-name entry)
    (render-attrs entry)])
 
+(defn render-cljs-handlers [form-params [field-name ?props ?schema :as entry]]
+  #?(:cljs
+     [field-name (-> (assoc ?props :ui/on-change (fn [event]
+                                                   (let [new-val (-> event .-target .-value)]
+                                                     (let [{:keys [on-field-change]} form-params]
+                                                       (on-field-change field-name new-val)))))
+                     (dissoc :on-field-change)
+                     (assoc :ui/value (get @(:doc form-params) field-name))) ?schema]))
+
+(defn render-cljs-form-attrs [form-params ?schema]
+  #?(:cljs
+     {:on-submit (fn [event]
+                   (let [decode (m/decoder ?schema mt/string-transformer)]
+                     (.preventDefault event)
+                     (let [doc (decode @(:doc form-params))]
+                       (println "decoded" doc)
+                       (if (m/validate ?schema doc)
+                         ((:on-submit-and-valid form-params) doc)
+                         (let [set-errors (:set-errors form-params)
+                               errors (-> (m/explain ?schema doc)
+                                          (me/humanize))]
+                           (set-errors errors)
+                           (println errors))))))}))
+
 (defn render-form
   "Turns a ?schema to form-hiccup, ?schema must be a schema for a map"
   ([?schema]
    (render-form {} ?schema))
   ([params ?schema]
    {:pre [(= :map (m/type ?schema))]}
-   (into [:form params]
-         (map render-input (m/children ?schema)))))
+   (into [:form
+          (merge
+           (render-cljs-form-attrs params ?schema)
+           params)]
+         [(doall (map (comp render-input (partial render-cljs-handlers params)) (m/children ?schema)))
+          [:button {:type :submit} "Submit"]])))
+
+(defn error-for [doc field]
+  (when-let [error (get-in @doc [:errors field])]
+    [:ul
+     (for [error (get-in @doc [:errors field])]
+       [:p {:style {:color "red"}} (str error)])]))
+
+(defn label-for [?schema field]
+  (let [[field-name params ?entry-schema] (mu/find ?schema field)]
+    [:label {:for (:ui/id params)} (:ui/label params)]))

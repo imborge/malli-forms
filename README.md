@@ -43,6 +43,6 @@ A form rendering/validation library for Clojure(Script)!
       {:doc doc
        :on-field-change (fn [field new-field-value] (swap! doc update field new-field-value))
        :on-submit-and-valid (fn [validated-doc] (send-to-server! validated-doc))
-	   :on-submit-and-invalid (fn [validation-errors] (js/console.log validation-errors))}
+       :on-submit-and-invalid (fn [validation-errors] (js/console.log validation-errors))}
       GuestbookForm]
 ```
