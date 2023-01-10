@@ -1,8 +1,8 @@
-# malli-forms
+# WIP: malli-forms
 
 A form rendering/validation library for Clojure(Script)!
 
-## Usage
+## Envisioned usage
 
 ### Clojure (server-side)
 ```clojure
@@ -19,12 +19,12 @@ A form rendering/validation library for Clojure(Script)!
     (if (and posted? valid?)
       (do (db/save! data)
           (redirect "/"))
-          
+
       (render my-form request))))
 ```
 
 ### ClojureScript w/ reagent
-```clojurescript
+```clojure
 (def doc-atom (r/atom nil))
 
 (def GuestbookForm
