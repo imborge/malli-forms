@@ -29,15 +29,19 @@ A form rendering/validation library for Clojure(Script)!
 
 (def GuestbookForm
   [:map
-    {:doc doc-atom
-     :on-field-change (fn [field new-field-value] (swap! doc-atom update field new-field-value))
-     :on-submit-and-valid (fn [validated-doc] (send-to-server! validated-doc))
-	 :on-submit-and-invalid (fn [validation-errors] (js/console.log validation-errors))}
+    
     [:name {:ui/placeholder "Your name here."} :string]
     [:email {:ui/placeholder "your@email.com"} :string]
     [:message {:ui/type :textarea
                :ui/placeholder "Enter message."}]])
 
 (defn form-view []
-  [form GuestbookForm]
+  (let [doc (r/atom nil)]
+    
+  [form
+    {:doc doc
+     :on-field-change (fn [field new-field-value] (swap! doc update field new-field-value))
+     :on-submit-and-valid (fn [validated-doc] (send-to-server! validated-doc))
+	 :on-submit-and-invalid (fn [validation-errors] (js/console.log validation-errors))}
+    GuestbookForm]
 ```
