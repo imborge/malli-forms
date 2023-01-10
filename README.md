@@ -25,8 +25,6 @@ A form rendering/validation library for Clojure(Script)!
 
 ### ClojureScript w/ reagent
 ```clojure
-(def doc-atom (r/atom nil))
-
 (def GuestbookForm
   [:map
     
